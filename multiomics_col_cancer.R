@@ -79,6 +79,9 @@ anno_col <- tibble(
   BRAFmut=as.factor(covariates$braf_mut),
   KRASmut=as.factor(covariates$kras_mut),
   Gender=covariates$gender,
+  PT=as.factor(covariates$pt),
+  PN=as.factor(covariates$pn),
+  PM=as.factor(covariates$pm),
   stage=as.factor(covariates$stage)) %>%
   column_to_rownames("rownames")
 
