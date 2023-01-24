@@ -21,7 +21,7 @@ pacman::p_load(heatmaply, cowplot) #for making interactive heatmaps using plotly
 pacman::p_load(d3heatmap, hrbrthemes) #for making interactive heatmaps using D3
 pacman::p_load(knitr, tinytex, rmarkdown)
 pacman::p_load(survminer, survival)
-devtools::install_github("compgenomr/compGenomRData")#this is where the data used here is
+#devtools::install_github("compgenomr/compGenomRData")#this is where the data used here is
 library("compGenomRData")
 library("devtools")
 #
@@ -70,10 +70,17 @@ covariates <- read.csv(csvfile, row.names=1)
 
 rownames(covariates)<- stringr::str_replace_all(rownames(covariates), "-", ".")
 
-covariates <- covariates[colnames(x1),]
+covariates <- covariates[colnames(x1),]#keep only patients that have multiomics
 # create a dataframe which will be used to annotate later graphs
-anno_col <- data.frame(cms=as.factor(covariates$cms_label))
-rownames(anno_col) <- rownames(covariates)
+anno_col <- tibble(
+  CMS=as.factor(covariates$cms_label),
+  rownames=rownames(covariates),
+  CIMP=covariates$cimp,
+  BRAFmut=as.factor(covariates$braf_mut),
+  KRASmut=as.factor(covariates$kras_mut),
+  Gender=covariates$gender,
+  stage=as.factor(covariates$stage)) %>%
+  column_to_rownames("rownames")
 
 
 pheatmap::pheatmap(x1, show_rownames = F, show_colnames = F, annotation_col = anno_col)
