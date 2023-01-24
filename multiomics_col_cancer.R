@@ -20,7 +20,7 @@ pacman::p_load(limma) #we only use limma in this script for the 'avearrays' func
 pacman::p_load(heatmaply, cowplot) #for making interactive heatmaps using plotly
 pacman::p_load(d3heatmap, hrbrthemes) #for making interactive heatmaps using D3
 pacman::p_load(knitr, tinytex, rmarkdown)
-pacman::p_load(survminer)
+pacman::p_load(survminer, survival)
 devtools::install_github("compgenomr/compGenomRData")#this is where the data used here is
 library("compGenomRData")
 library("devtools")
@@ -44,7 +44,8 @@ csvfile <- system.file("extdata", "multi-omics", "COREAD_CMS13_muts.csv",
 x2 <- read.csv(csvfile, row.names=1)
 # Set mutation data to be binary (so if a gene has more than 1 mutation,
 # we only count one)
-x2[x2>0]=1
+
+#x2[x2>0]=1
 x2<- ifelse(x2>0, 1, 0)
 
 # output a table
@@ -64,8 +65,8 @@ csvfile <- system.file("extdata", "multi-omics", "COREAD_CMS13_subtypes.csv",
                        package="compGenomRData")
 covariates <- read.csv(csvfile, row.names=1)
 # Fix the TCGA identifiers so they match up with the omics data
-rownames(covariates) <- gsub(pattern = '-', replacement = '\\.',
-                             rownames(covariates))
+
+#rownames(covariates) <- gsub(pattern = '-', replacement = '\\.',rownames(covariates))
 
 rownames(covariates)<- stringr::str_replace_all(rownames(covariates), "-", ".")
 
@@ -148,14 +149,14 @@ plot_grid(
   ggplot(covariates, aes(as.factor(stage), age, fill=gender)) +
     geom_boxplot() +
     theme_bw() +
-    labs(title="age v stage") +
+    labs(title="age vs stage") +
     panel_border(),
   
   
   ggplot(covariates, aes(as.factor(osStat))) +
     geom_bar() +
     theme_bw() +
-    labs(title="age v stage") +
+    labs(title="osStat") +
     panel_border()
   
   
@@ -174,5 +175,14 @@ splots[[3]] <-survfit(Surv(osMo, osStat) ~ braf_mut, data = covariates) %>%
 splots[[4]] <-survfit(Surv(osMo, osStat) ~ kras_mut, data = covariates) %>% 
   ggsurvplot(data = covariates, pval = T, ggtheme = theme_bw())
 
+splots[[5]] <-survfit(Surv(osMo, osStat) ~ cms_label, data = covariates) %>% 
+  ggsurvplot(data = covariates, pval = T, ggtheme = theme_bw())
+
+splots[[6]] <-survfit(Surv(osMo, osStat) ~ tnm, data = covariates) %>% 
+  ggsurvplot(data = covariates, pval = T, ggtheme = theme_bw())
+
+splots[[7]] <-survfit(Surv(osMo, osStat) ~ cimp, data = covariates) %>% 
+  ggsurvplot(data = covariates, pval = T, ggtheme = theme_bw())
+
 arrange_ggsurvplots(splots, print = TRUE,
-                    ncol = 2, nrow = 2, risk.table.height = 0.4)
+                    ncol = 3, nrow = 3, risk.table.height = 0.4)
